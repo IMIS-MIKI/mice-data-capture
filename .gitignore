@@ -1,2 +1,4 @@
 pipeline/
 pipeline/*
+app/main/logic/__pycache__/__init__.cpython-311.pyc
+app/main/logic/__pycache__/consumeAndProcess.cpython-311.pyc
