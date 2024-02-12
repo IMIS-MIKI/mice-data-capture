@@ -188,4 +188,5 @@ def runlogic(topics):
 #     consumer_thread.join()
 #     processor_thread.join()  
     print ('Feierabend')
-    return recordstack
+    #return recordstack
+    return xs, ys

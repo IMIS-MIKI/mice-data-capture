@@ -18,11 +18,16 @@ def index():
 @app.route('/process/<topic_name>')
 def process_topic(topic_name):
     topics = [topic_name]
-    recordedstack = logic.consumeAndProcess.runlogic(topics)
+    labels, data = logic.consumeAndProcess.runlogic(topics)
     # Here, call the function that processes the topic
     # For demonstration, this will just return a simple message
     # In real use, you might redirect to another page that shows the processing result or status
-    return f"Processing topic: {type(recordedstack)}"
+    #return f"Processing topic: {type(recordedstack)}"
+    return render_template(
+        template_name_or_list='chartjs-example.html',
+        data=data,
+        labels=labels,
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
