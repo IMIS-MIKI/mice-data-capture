@@ -2,3 +2,6 @@ pipeline/
 pipeline/*
 app/main/logic/__pycache__/__init__.cpython-311.pyc
 app/main/logic/__pycache__/consumeAndProcess.cpython-311.pyc
+app/main/fhirizer/__pycache__/__init__.cpython-311.pyc
+app/main/fhirizer/__pycache__/createRessource.cpython-311.pyc
+app/main/logic/__pycache__/createImage.cpython-311.pyc
