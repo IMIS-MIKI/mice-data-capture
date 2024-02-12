@@ -1,6 +1,8 @@
 import subprocess
 from flask import Flask, render_template, Response
 import logic.consumeAndProcess
+import logic.createImage
+import fhirizer.createRessource
 
 app = Flask(__name__)
 
@@ -18,7 +20,10 @@ def index():
 @app.route('/process/<topic_name>')
 def process_topic(topic_name):
     topics = [topic_name]
-    labels, data = logic.consumeAndProcess.runlogic(topics)
+    labels, data, record = logic.consumeAndProcess.runlogic(topics)
+    #Here FHIR Stuff
+    base = logic.createImage.createImage(record)
+    fhirizer.createRessource.createBinaryRessource(base)
     # Here, call the function that processes the topic
     # For demonstration, this will just return a simple message
     # In real use, you might redirect to another page that shows the processing result or status

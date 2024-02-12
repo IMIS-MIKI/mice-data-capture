@@ -11,41 +11,6 @@ import matplotlib.animation as animation
 from typing import Iterator
 from flask import request
 import time
-# from matplotlib import style
-
-# def animate(i, xs, ys):
-
-#     matplotlib.use('tkagg')
-
-#     # Create figure for plotting
-#     # Initialize your figure for plotting
-#     fig, ax = plt.subplots()
-#     xs, ys = [0], []
-#     plot_key = ""
-#     ecg_curve = 'ECGV.Realtimecurve.6C.64E8'
-
-
-#     # Limit x and y lists to 20 items
-#     xs = xs[-620:]
-#     ys = ys[-620:]
-
-#     # Draw x and y lists
-#     try:
-#         plt.xticks(rotation=45, ha='right')
-#         plt.subplots_adjust(bottom=0.30)
-#         plt.title(plot_key)
-#         plt.ylabel('mV')
-#         ax.clear()
-#         ax.set_ylim([-0.4, 1.0])
-#         high_floats = [float(y) for y in ys]
-#         ax.plot(xs, high_floats)
-
-#     except:
-#         pass
-
-#print("Initializing Stack")
-#stack = queue.Queue()
-
 
 def generate_data_plot(xs, ys) -> Iterator[str]:
     print('do something')
@@ -82,13 +47,12 @@ def process_messages(stack, xs, ys):
             print(len(ys))
 #            print(len(ys) - len(xs))
 #            print(ys)
-            time.sleep(.3)
+            time.sleep(1)
         else:
             break     
         return data_dict['DeterminationTime']
-
-
-
+    
+    
 def msg_process(stack, recordstack, msg):
     stack.put(msg.value().decode('utf-8'))
     recordstack.put(msg.value().decode('utf-8'))
@@ -188,5 +152,6 @@ def runlogic(topics):
 #     consumer_thread.join()
 #     processor_thread.join()  
     print ('Feierabend')
+    consumer.close()
     #return recordstack
-    return xs, ys
+    return xs, ys, recordstack
