@@ -18,7 +18,7 @@ def parse_input(incoming):
     return root[1][0].attrib['MdibVersion'], values
 
 
-def parseValues(stack):
+def parseValues(stack, realtimecurve):
     print("parse values")
     xs, ys = [0], []
     while True:
@@ -26,7 +26,7 @@ def parseValues(stack):
             message = stack.get()
             data = parse_input(message)
             data_dict = data[1]
-            ecg_curve = 'ECGV.Realtimecurve.6C.64E8'
+            ecg_curve = str(realtimecurve)
             # Converting string values to floats
             ys.extend(data_dict[ecg_curve])
             xs.extend(range((xs[-1]) + 1, len(ys), 1))
@@ -35,8 +35,8 @@ def parseValues(stack):
     return xs, ys
 
 
-def createImage(stack):
-    x, data = parseValues(stack)
+def createImage(stack, realtimecurve):
+    x, data = parseValues(stack, realtimecurve)
     data_floats = [float(y) for y in data]
     plt.figure(figsize=(10, 6))
     plt.plot(x, data_floats)

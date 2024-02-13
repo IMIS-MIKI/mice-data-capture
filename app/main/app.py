@@ -29,19 +29,24 @@ def index():
 @app.route('/process/<topic_name>')
 def process_topic(topic_name):
     topics = [topic_name]
-    labels, data, record = logic.consumeAndProcess.runlogic(topics)
+    realtimecurveDict, record = logic.consumeAndProcess.runlogic(topics)
     # Here FHIR Stuff
-    base = logic.createImage.createImage(record)
-    fhir_obs = fhirizer.exporter.fhir(data, base)
+    for key, valueLists in realtimecurveDict.items():
+        print(f"Processing {key}")
+        xs = valueLists[0] 
+        ys = valueLists[1]  
+    
+        base = logic.createImage.createImage(record, key)
+        fhir_obs = fhirizer.exporter.fhir(ys, base)
     # Here, call the function that processes the topic
     # For demonstration, this will just return a simple message
     # In real use, you might redirect to another page that shows the processing result or status
-    # return f"Processing topic: {type(recordedstack)}"
-    return render_template(
-        template_name_or_list='chartjs-example.html',
-        data=data,
-        labels=labels,
-    )
+    return True
+#    return render_template(
+#        template_name_or_list='chartjs-example.html',
+#        data=data,
+#        labels=labels,
+#    )
 
 
 if __name__ == '__main__':

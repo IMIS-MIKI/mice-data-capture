@@ -29,28 +29,26 @@ def parse_input(incoming):
 
 
 # Message Processing Function
-def process_messages(stack, xs, ys):
+def process_messages(stack, realtimecurveDict):
     print("process message")
-    #    xs, ys = [0], []
+    xs, ys = [0], []
     while True:
         if not stack.empty():
             message = stack.get()
             data = parse_input(message)
             data_dict = data[1]
-            ecg_curve = 'ECGV.Realtimecurve.6C.64E8'
-            # Converting string values to floats
-            if ecg_curve in data_dict:
-                print('.')
-            else:
-                print('key not found')
-                continue
-            # print(data_dict[ecg_curve])
-            ys.extend(data_dict[ecg_curve])
-            xs.extend(range((xs[-1]) + 1, len(ys), 1))
-            print(len(ys))
-            #            print(len(ys) - len(xs))
-            #            print(ys)
-            time.sleep(1)
+            ecg_curve = list(data_dict.keys())
+            for keys in ecg_curve[1:]:
+                # print(data_dict[ecg_curve])
+                ys.extend(data_dict[keys])
+                xs.extend(range((xs[-1]) + 1, len(ys), 1))
+                if keys not in realtimecurveDict:
+                    realtimecurveDict[keys] = [[xs], [ys]] 
+                else:
+                    realtimecurveDict[keys][0].append(xs)  
+                    realtimecurveDict[keys][1].append(ys)  
+                    print(len(ys))
+                time.sleep(1)
         else:
             break
         return data_dict['DeterminationTime']
@@ -131,14 +129,15 @@ def runlogic(topics):
             'enable.auto.commit': 'false',
             'auto.offset.reset': 'latest'}
     consumer = Consumer(conf)
-    xs, ys = [0], []
+    #xs, ys = [0], []
+    realtimecurveDict = {}
     det_time = []
     stack = queue.Queue()
     recordstack = queue.Queue()
 
     while True:
         basic_consume_loop(consumer, topics, stack, recordstack, True)
-        det_time.append(process_messages(stack, xs, ys))
+        det_time.append(process_messages(stack, realtimecurveDict))
         if not is_below_30_seconds(det_time):
             break
     #     consumer_thread = threading.Thread(target=basic_consume_loop, args=(consumer, topics, stack, True))
@@ -159,4 +158,4 @@ def runlogic(topics):
     print('Feierabend')
     consumer.close()
     # return recordstack
-    return xs, ys, recordstack
+    return realtimecurveDict, recordstack
