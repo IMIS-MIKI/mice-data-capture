@@ -10,3 +10,4 @@ app/main/logic/__pycache__/createImage.cpython-311.pyc
 app/.DS_Store
 app/main/fhirizer/__pycache__/
 app/main/logic/__pycache__/
+.vscode/launch.json
