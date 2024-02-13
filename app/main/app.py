@@ -2,7 +2,7 @@ import subprocess
 from flask import Flask, render_template, Response
 import logic.consumeAndProcess
 import logic.createImage
-import fhirizer.createRessource
+import fhirizer.exporter
 from confluent_kafka import Consumer, KafkaError, KafkaException
 
 app = Flask(__name__)
@@ -32,7 +32,7 @@ def process_topic(topic_name):
     labels, data, record = logic.consumeAndProcess.runlogic(topics)
     # Here FHIR Stuff
     base = logic.createImage.createImage(record)
-    fhirizer.createRessource.createBinaryRessource(base)
+    fhir_obs = fhirizer.exporter.fhir(data, base)
     # Here, call the function that processes the topic
     # For demonstration, this will just return a simple message
     # In real use, you might redirect to another page that shows the processing result or status
