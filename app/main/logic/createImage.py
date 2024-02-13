@@ -30,16 +30,16 @@ def parseValues(stack):
             # Converting string values to floats
             ys.extend(data_dict[ecg_curve])
             xs.extend(range((xs[-1]) + 1, len(ys), 1))
-            print(len(ys))
         else:
             break
-        return ys
+    return xs, ys
 
 
 def createImage(stack):
-    data = parseValues(stack)
+    x, data = parseValues(stack)
+    data_floats = [float(y) for y in data]
     plt.figure(figsize=(10, 6))
-    plt.plot(data)
+    plt.plot(x, data_floats)
     plt.title('ECG')
     buf = io.BytesIO()
     plt.savefig(buf, format='jpg')
