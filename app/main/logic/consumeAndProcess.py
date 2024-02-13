@@ -119,10 +119,6 @@ def is_below_30_seconds(epoch_times):
     return True
 
 
-# print("Running Threads")
-# print("Run Kafka Consumer in Background")
-# Run Kafka Consumer in Background
-
 def runlogic(topics):
     conf = {'bootstrap.servers': '172.26.241.166:9092',
             'group.id': 'mice',
@@ -140,21 +136,7 @@ def runlogic(topics):
         det_time.append(process_messages(stack, realtimecurveDict))
         if not is_below_30_seconds(det_time):
             break
-    #     consumer_thread = threading.Thread(target=basic_consume_loop, args=(consumer, topics, stack, True))
-    #     consumer_thread.daemon = True
-    #     consumer_thread.start()
 
-    #     # Run Message Processor in Background
-    #     print("Run Message Processor in Background")
-
-    #     processor_thread = threading.Thread(target=process_messages, args=(stack,))
-    #     processor_thread.daemon = True
-    #     processor_thread.start()
-    # # Start the animation
-    # #    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=50)
-    # #    plt.show()
-    #     consumer_thread.join()
-    #     processor_thread.join()
     print('Feierabend')
     consumer.close()
     # return recordstack

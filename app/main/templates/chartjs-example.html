@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
- 
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Chartjs Charts</title>
 </head>
- 
 <body>
+    {% for dataset in datasets %}
     <div style="height: 50vh; width: 50%;">
-        <canvas id="myChart"></canvas>
+        <canvas id="myChart{{ loop.index }}"></canvas>
     </div>
- 
+    {% endfor %}
+
     <script>
-        const labels = {{ labels | tojson}};
- 
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'Sales',
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: {{ data | tojson}},
-            }]
-        };
- 
-        const config = {
-            type: 'line',
-            data: data,
-            options: { maintainAspectRatio: false }
-        };
- 
-        const myChart = new Chart(
-            document.getElementById('myChart'),
-            config
-        );
- 
+        const datasets = {{ datasets | tojson | safe }};
+        
+        datasets.forEach((dataset, index) => {
+            const data = {
+                labels: dataset.labels,
+                datasets: [{
+                    label: 'Sales',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: dataset.data,
+                }]
+            };
+            
+            const config = {
+                type: 'line',
+                data: data,
+                options: { maintainAspectRatio: false }
+            };
+            
+            new Chart(
+                document.getElementById('myChart' + (index + 1)),
+                config
+            );
+        });
     </script>
 </body>
 </html>
