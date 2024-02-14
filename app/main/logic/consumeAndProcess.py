@@ -31,7 +31,6 @@ def parse_input(incoming):
 # Message Processing Function
 def process_messages(stack, realtimecurveDict):
     print("process message")
-    xs, ys = [0], []
     while True:
         if not stack.empty():
             message = stack.get()
@@ -39,15 +38,19 @@ def process_messages(stack, realtimecurveDict):
             data_dict = data[1]
             ecg_curve = list(data_dict.keys())
             for keys in ecg_curve[1:]:
+                xs, ys = [0], []
                 # print(data_dict[ecg_curve])
                 ys.extend(data_dict[keys])
-                xs.extend(range((xs[-1]) + 1, len(ys), 1))
                 if keys not in realtimecurveDict:
+                    xs.extend(range((xs[-1]) + 1, len(ys), 1))
                     realtimecurveDict[keys] = [[xs], [ys]] 
                 else:
-                    realtimecurveDict[keys][0].append(xs)  
-                    realtimecurveDict[keys][1].append(ys)  
-                    print(len(ys))
+                    for items in ys:
+                        realtimecurveDict[keys][1][-1].append(items)  
+                    xs = []
+                    xs.extend(range(realtimecurveDict[keys][0][-1][-1] + 1, len(realtimecurveDict[keys][1][-1]), 1))
+                    for items in xs:
+                        realtimecurveDict[keys][0][-1].append(items)  
                 time.sleep(1)
         else:
             break
@@ -80,7 +83,7 @@ def basic_consume_loop(consumer, topics, stack, recordstack, running):
                 running = msg_process(stack, recordstack, msg)
 
     except:
-        # Close down consumer to commit final offsets.
+        print("Close down consumer to commit final offsets in basic_consume_loop")
         consumer.close()
 
 
@@ -93,7 +96,6 @@ def basic_consume_loop(consumer, topics, stack, recordstack, running):
 #     shutdown()
 
 def shutdown():
-    print('Ich bin false')
     return False
 
 
@@ -112,7 +114,7 @@ def is_below_30_seconds(epoch_times):
         difference = current_time - first_epoch_time
 
         # If the difference is 30 seconds or more, return False
-        if difference >= 30:
+        if difference >= 60:
             return False
 
     # If we never hit a 30 second difference, return True
@@ -125,7 +127,6 @@ def runlogic(topics):
             'enable.auto.commit': 'false',
             'auto.offset.reset': 'latest'}
     consumer = Consumer(conf)
-    #xs, ys = [0], []
     realtimecurveDict = {}
     det_time = []
     stack = queue.Queue()
@@ -133,11 +134,11 @@ def runlogic(topics):
 
     while True:
         basic_consume_loop(consumer, topics, stack, recordstack, True)
+        print("call process messages")
         det_time.append(process_messages(stack, realtimecurveDict))
         if not is_below_30_seconds(det_time):
             break
 
     print('Feierabend')
     consumer.close()
-    # return recordstack
     return realtimecurveDict, recordstack

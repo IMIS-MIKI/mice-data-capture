@@ -7,7 +7,7 @@ from fhir.resources.R4B.narrative import Narrative
 
 def fhir(incoming_data, image):
     binary = create_binary(image)
-    obs = create_observation(incoming_data)
+    obs = create_observation(incoming_data[-1])
     obs.contained = [binary]
     print(obs.json(indent=2))
     return obs

@@ -37,9 +37,11 @@ plt.switch_backend('Agg')
 
 def createImage(xs, ys, key):
     #x, data = parseValues(stack, realtimecurve)
-    data_floats = [float(y) for y in ys]
+    print(ys)
+    print(xs)
+    data_floats = [float(y) for y in ys[-1]]
     plt.figure(figsize=(10, 6))
-    plt.plot(xs, data_floats)
+    plt.plot(xs[-1], data_floats)
     plt.title(str(key))
     buf = io.BytesIO()
     plt.savefig(buf, format='jpg')

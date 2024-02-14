@@ -1,4 +1,4 @@
-import subprocess
+import json
 from flask import Flask, render_template, Response
 import logic.consumeAndProcess
 import logic.createImage
@@ -33,21 +33,18 @@ def process_topic(topic_name):
     # Here FHIR Stuff
     for key, valueLists in realtimecurveDict.items():
         print(f"Processing {key}")
-        xs, ys = [], []
-        for lists in valueLists[0]:
-            for values in lists:
-                xs.append(values) 
-        for lists in valueLists[1]:
-            for values in lists:
-                ys.append(values)  
-        base = logic.createImage.createImage(xs, ys, key)
-        fhir_obs = fhirizer.exporter.fhir(ys, base)
+        base = logic.createImage.createImage(valueLists[0], valueLists[1], key)
+        fhir_obs = fhirizer.exporter.fhir(valueLists[1], base)
+    
+    # Convert the dictionary to a JSON string
+#    json_str = json.dumps(realtimecurveDict)
 
     return render_template(
        template_name_or_list='chartjs-example.html',
-    #    data=data,
-    #    labels=labels,
-         datasets = realtimecurveDict
+        data=realtimecurveDict["ECGI.Realtimecurve.68.793F"][1][-1],
+        labels=realtimecurveDict["ECGI.Realtimecurve.68.793F"][0][-1],
+
+ #        datasets = json_str
    )
 
 
