@@ -3,7 +3,8 @@ from fhir.resources.R4B.observation import Observation, ObservationComponent
 from fhir.resources.R4B.codeableconcept import CodeableConcept
 from fhir.resources.R4B.quantity import Quantity
 from fhir.resources.R4B.narrative import Narrative
-import logic.create_image
+import create_image
+
 
 def get_mdc_mapping(key):
     prefix = key.split('.')[0]
@@ -32,9 +33,9 @@ def get_mdc_mapping(key):
             return {"system": "urn:iso:std:iso:11073:10101", "code": "131328", "display": "MDC_ECG_ELEC_POTL"}
 
 
-def fhir(incoming_data):
+def fhirize(incoming_data):
     key = list(incoming_data.keys())[0]
-    image = logic.create_image.createImage(incoming_data[key][0], incoming_data[key][1], key)
+    image = create_image.createImage(incoming_data[key][0], incoming_data[key][1], key)
     binary = create_binary(image)
     obs = create_observation(incoming_data)
     obs.contained = [binary]

@@ -1,7 +1,9 @@
 import json
-from flask import Flask, render_template, Response
-import logic.consumeAndProcess
-import logic.exporter
+from flask import Flask, render_template, Response, stream_with_context
+import consumeAndProcess
+import create_image
+import exporter
+import generateLiveData
 from confluent_kafka import Consumer, KafkaError, KafkaException
 
 app = Flask(__name__)
@@ -20,17 +22,24 @@ def index():
         if t.startswith('sdc'):
             topics.append(t)
     # Render these topics in the index.html template
-    return render_template('index.html', topics=topics)
+    return render_template('liveplot.html', topics=topics)
 
 
-# Other routes and functions...
+@app.route('/chart-data')
+def chart_data():
+    #response = Response(stream_with_context(livedataplot.generateLiveData.generateRandomData()), mimetype="text/event-stream")
+    response = Response(stream_with_context(generateLiveData.runlive(['sdc_865d26ad-ee40-5368-a215-4950e69b4a60_ws'])), mimetype="text/event-stream")
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Accel-Buffering"] = "no"
+    return response
+    # Other routes and functions...
 
 @app.route('/process/<topic_name>')
 def process_topic(topic_name):
     topics = [topic_name]
-    realtimecurveDict = logic.consumeAndProcess.runlogic(topics)
+    realtimecurveDict = consumeAndProcess.runlogic(topics)
     # Here FHIR Stuff
-    fhir_obs = logic.exporter.fhir(realtimecurveDict)
+    fhir_obs = exporter.fhirize(realtimecurveDict)
     print(fhir_obs.json(indent=2))
 
     # Convert the dictionary to a JSON string
@@ -43,4 +52,4 @@ def process_topic(topic_name):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, threaded=True)
