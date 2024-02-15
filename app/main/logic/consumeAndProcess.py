@@ -54,14 +54,14 @@ def msg_process(stack, msg):
     return False
 
 
-def basic_consume_loop(consumer, topics, stack, running):
+def basic_consume_loop(consumer, stack, running):
     running = running
 
     while running:
         try:
             msg = consumer.poll(timeout=60.0)
             if msg is None or not msg: 
-                print("Wait for now messages")
+                print("Wait for new messages")
                 time.sleep(5)       
     
             if msg.error():
@@ -108,7 +108,7 @@ def runlogic(topics):
     stack = queue.Queue()
 
     while True:
-        basic_consume_loop(consumer, topics, stack, True)
+        basic_consume_loop(consumer, stack, True)
         det_time.append(process_messages(stack, realtimecurveDict))
         if not timespan_in_seconds(det_time):
             break
