@@ -72,11 +72,15 @@
                     }],
                     yAxes: [{
                         display: true,
-                        Min: 0,
-                        Max: 1,
+                        ticks: {
+                            beginAtZero: true,
+                            min: -0.2,
+                            max: 1.5,
+                            stepSize: 20
+                        },
                         scaleLabel: {
                             display: true,
-                            labelString: 'Value'
+                            labelString: 'mV'
                         }
                     }]
                 }
@@ -91,7 +95,7 @@
 
         source.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            if (config.data.labels.length === 20) {
+            if (config.data.labels.length === 200) {
                 config.data.labels.shift();
                 config.data.datasets[0].data.shift();
             }
