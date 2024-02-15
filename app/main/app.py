@@ -41,8 +41,6 @@ def process_topic(topic_name):
 
     return render_template(
        template_name_or_list='chartjs-example.html',
-        # data=realtimecurveDict["ECGI.Realtimecurve.68.793F"][1][-1],
-        # labels=realtimecurveDict["ECGI.Realtimecurve.68.793F"][0][-1],
         datasets = json_str,
    )
 

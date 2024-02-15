@@ -1,69 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
- 
+
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Chartjs Charts</title>
 </head>
- 
+
 <body>
     <div style="height: 50vh; width: 50%;">
         <canvas id="myChart"></canvas>
     </div>
- 
+    <div id="chartsContainer"></div>
+    <div id="output"></div>
+
     <script>
-         var dataObj = JSON.parse({{ datasets }});
-	     var json_label = dataObj["ECGI.Realtimecurve.68.793F"][0][0];
-	     var json_data = dataObj["ECGI.Realtimecurve.68.793F"][1][0];
+        // Example placeholder for your JSON data
+        var encodedJsonStr = "{{ datasets }}"; // Make sure to decode or replace this with your actual data
+        var decodedJsonStr = decodeHtmlEntities(encodedJsonStr);
+        var dataObj = JSON.parse(decodedJsonStr); // Assuming this is the correct parsed format
+
+        var keys = [];
+        var integerLists = [];
+        var stringLists = [];
+
+        for (var key in dataObj) {
+            if (dataObj.hasOwnProperty(key)) {
+                keys.push(key); // Save the key
+                integerLists.push(dataObj[key][0][0]);
+                stringLists.push(dataObj[key][1][0]); 
+            }
+        }
+
+        function decodeHtmlEntities(encodedString) {
+            var textArea = document.createElement('textarea');
+            textArea.innerHTML = encodedString;
+            return textArea.value;
+        }
 
 
-        function extractAndCast(dataObj) {
-            // Access the main property of the JSON object
-            const mainKey = "ECGI.Realtimecurve.68.793F";
-            const rawData = jsonData[mainKey];
-            const resultArrays = [];
-        
-            // Iterate through the outer array containing the lists
-            rawData.forEach((listWrapper) => {
-                // Each 'listWrapper' contains a single list in your provided structure
-                listWrapper.forEach((list) => {
-                    // Cast each item in the list to a number and store in 'castedList'
-                    const castedList = list.map(item => parseFloat(item));
-                    // Store the casted list in the result array
-                    resultArrays.push(castedList);
+        function plotArray(keys, integerLists, stringLists) {
+            generateCharts(keys, integerLists[0], stringLists[0]);
+
+        }
+
+        function displayArrayInfo(arr, title, containerId) {
+            var container = document.getElementById(containerId);
+            var titleElement = document.createElement('h3');
+            titleElement.textContent = title + ' (Length: ' + arr.length + ')';
+            container.appendChild(titleElement);
+
+            if (arr.length > 0) {
+                var list = document.createElement('ul');
+                arr.forEach(function(item) {
+                    var listItem = document.createElement('li');
+                    listItem.textContent = JSON.stringify(item);
+                    list.appendChild(listItem);
                 });
+                container.appendChild(list);
+            } else {
+                var emptyInfo = document.createElement('p');
+                emptyInfo.textContent = 'This array is empty.';
+                container.appendChild(emptyInfo);
+            }
+        }
+
+        function createChart(keys, labels, data, chartId) {
+            const dataConfig = {
+//                labels: JSON.stringify(labels) ,
+                labels: labels ,
+                datasets: [{
+                    label: keys,
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+//                    data: JSON.stringify(data) ,
+                    data: data ,
+                }]
+            };
+
+            const config = {
+                type: 'line',
+                data: dataConfig,
+                options: { maintainAspectRatio: false }
+            };
+
+            new Chart(document.getElementById(chartId), config);
+        }
+
+        function generateCharts(keys, integerLists, stringLists) {
+            const chartsContainer = document.getElementById('chartsContainer');
+            
+            keys.forEach((keys, index) => {
+                const chartDiv = document.createElement('div');
+                chartDiv.style.height = '50vh';
+                chartDiv.style.width = '50%';
+
+                const canvas = document.createElement('canvas');
+                canvas.id = 'chart' + index;
+                chartDiv.appendChild(canvas);
+
+                chartsContainer.appendChild(chartDiv);
+
+                createChart(keys, integerLists[index], stringLists[index] , canvas.id);
             });
-        
-            return resultArrays;
         }
         
-
-        const array = extractAndCast(jsonData);
-
- 
-        const labels = {{ labels | tojson}};
-
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'Sales',
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: array,
-            }]
-        };
- 
-        const config = {
-            type: 'line',
-            data: data,
-            options: { maintainAspectRatio: false }
-        };
- 
-        const myChart = new Chart(
-            document.getElementById('myChart'),
-            config
-        );
- 
+        displayArrayInfo(keys, 'Keys', 'output');
+        displayArrayInfo(integerLists, 'Integer Lists', 'output');
+        displayArrayInfo(stringLists, 'String Lists', 'output');
+        generateCharts(keys, integerLists, stringLists)
     </script>
 </body>
 </html>

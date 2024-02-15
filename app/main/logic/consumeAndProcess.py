@@ -84,25 +84,15 @@ def shutdown():
     return False
 
 
-def is_below_30_seconds(epoch_times):
-    # Convert the string epoch times to integers and then to seconds
+def timespan_in_seconds(epoch_times):
     epoch_times_seconds = [int(time) / 1000 for time in epoch_times]
-
     first_epoch_time = epoch_times_seconds[0]
-
-    # Check if the list has at least one time to compare
     if not epoch_times_seconds:
-        return True  # If list is empty, consider it as below 30 seconds
-
+        return True  
     for current_time in epoch_times_seconds:
-        # Calculate the difference between the current time and the first time
         difference = current_time - first_epoch_time
-
-        # If the difference is 30 seconds or more, return False
-        if difference >= 60:
+        if difference >= 1:
             return False
-
-    # If we never hit a 30 second difference, return True
     return True
 
 
@@ -120,7 +110,7 @@ def runlogic(topics):
     while True:
         basic_consume_loop(consumer, topics, stack, True)
         det_time.append(process_messages(stack, realtimecurveDict))
-        if not is_below_30_seconds(det_time):
+        if not timespan_in_seconds(det_time):
             break
 
     print('End of data capture')
