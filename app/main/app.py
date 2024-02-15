@@ -1,8 +1,7 @@
 import json
 from flask import Flask, render_template, Response
 import logic.consumeAndProcess
-import logic.createImage
-import fhirizer.exporter
+import logic.exporter
 from confluent_kafka import Consumer, KafkaError, KafkaException
 
 app = Flask(__name__)
@@ -31,18 +30,16 @@ def process_topic(topic_name):
     topics = [topic_name]
     realtimecurveDict = logic.consumeAndProcess.runlogic(topics)
     # Here FHIR Stuff
-    for key, valueLists in realtimecurveDict.items():
-        print(f"Processing {key}")
-        base = logic.createImage.createImage(valueLists[0], valueLists[1], key)
-        fhir_obs = fhirizer.exporter.fhir(valueLists[1], base)
-    
+    fhir_obs = logic.exporter.fhir(realtimecurveDict)
+    print(fhir_obs.json(indent=2))
+
     # Convert the dictionary to a JSON string
     json_str = json.dumps(realtimecurveDict)
 
     return render_template(
-       template_name_or_list='chartjs-example.html',
-        datasets = json_str,
-   )
+        template_name_or_list='chartjs-example.html',
+        datasets=json_str,
+    )
 
 
 if __name__ == '__main__':
