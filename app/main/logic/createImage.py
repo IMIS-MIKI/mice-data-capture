@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as eT
 import base64
-import os
 import io
 
 plt.switch_backend('Agg')

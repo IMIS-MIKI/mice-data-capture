@@ -1,13 +1,8 @@
 import xml.etree.ElementTree as eT
-import threading
 import queue
-import json
 import sys
 from confluent_kafka import Consumer, KafkaError, KafkaException
 import time
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 from typing import Iterator
 from flask import request
 import time
@@ -30,7 +25,6 @@ def parse_input(incoming):
 
 # Message Processing Function
 def process_messages(stack, realtimecurveDict):
-    print("process message")
     while True:
         if not stack.empty():
             message = stack.get()
@@ -39,7 +33,6 @@ def process_messages(stack, realtimecurveDict):
             ecg_curve = list(data_dict.keys())
             for keys in ecg_curve[1:]:
                 xs, ys = [0], []
-                # print(data_dict[ecg_curve])
                 ys.extend(data_dict[keys])
                 if keys not in realtimecurveDict:
                     xs.extend(range((xs[-1]) + 1, len(ys), 1))
@@ -51,27 +44,26 @@ def process_messages(stack, realtimecurveDict):
                     xs.extend(range(realtimecurveDict[keys][0][-1][-1] + 1, len(realtimecurveDict[keys][1][-1]), 1))
                     for items in xs:
                         realtimecurveDict[keys][0][-1].append(items)  
-                time.sleep(1)
         else:
             break
         return data_dict['DeterminationTime']
 
 
-def msg_process(stack, recordstack, msg):
+def msg_process(stack, msg):
     stack.put(msg.value().decode('utf-8'))
-    recordstack.put(msg.value().decode('utf-8'))
     return False
 
 
-def basic_consume_loop(consumer, topics, stack, recordstack, running):
+def basic_consume_loop(consumer, topics, stack, running):
     running = running
-    try:
-        consumer.subscribe(topics)
 
-        while running:
+    while running:
+        try:
             msg = consumer.poll(timeout=60.0)
-            if msg is None: continue
-
+            if msg is None or not msg: 
+                print("Wait for now messages")
+                time.sleep(5)       
+    
             if msg.error():
                 if msg.error().code() == KafkaError._PARTITION_EOF:
                     # End of partition event
@@ -80,20 +72,13 @@ def basic_consume_loop(consumer, topics, stack, recordstack, running):
                 elif msg.error():
                     raise KafkaException(msg.error())
             else:
-                running = msg_process(stack, recordstack, msg)
+                print(msg.partition())
+                print(msg.offset())
+                running = msg_process(stack, msg)
 
-    except:
-        print("Close down consumer to commit final offsets in basic_consume_loop")
-        consumer.close()
+        except:
+            print("Close down consumer to commit final offsets in basic_consume_loop")
 
-
-# def runner(start_time):  # capture start time
-#     # Loop for 30 seconds
-#     while time.time() - start_time < 20:
-#         print (time.time() - start_time)
-#         return True
-#         # Here you can call your functions
-#     shutdown()
 
 def shutdown():
     return False
@@ -127,18 +112,17 @@ def runlogic(topics):
             'enable.auto.commit': 'false',
             'auto.offset.reset': 'latest'}
     consumer = Consumer(conf)
+    consumer.subscribe(topics)
     realtimecurveDict = {}
     det_time = []
     stack = queue.Queue()
-    recordstack = queue.Queue()
 
     while True:
-        basic_consume_loop(consumer, topics, stack, recordstack, True)
-        print("call process messages")
+        basic_consume_loop(consumer, topics, stack, True)
         det_time.append(process_messages(stack, realtimecurveDict))
         if not is_below_30_seconds(det_time):
             break
 
-    print('Feierabend')
+    print('End of data capture')
     consumer.close()
-    return realtimecurveDict, recordstack
+    return realtimecurveDict

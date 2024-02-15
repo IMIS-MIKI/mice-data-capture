@@ -12,9 +12,34 @@
     </div>
  
     <script>
-        // var dataObj = JSON.parse({{ datasets }});
-	    // var labels = dataObj["ECGI.Realtimecurve.68.793F"][0][0];
-	    // var data = dataObj["ECGI.Realtimecurve.68.793F"][1][0];
+         var dataObj = JSON.parse({{ datasets }});
+	     var json_label = dataObj["ECGI.Realtimecurve.68.793F"][0][0];
+	     var json_data = dataObj["ECGI.Realtimecurve.68.793F"][1][0];
+
+
+        function extractAndCast(dataObj) {
+            // Access the main property of the JSON object
+            const mainKey = "ECGI.Realtimecurve.68.793F";
+            const rawData = jsonData[mainKey];
+            const resultArrays = [];
+        
+            // Iterate through the outer array containing the lists
+            rawData.forEach((listWrapper) => {
+                // Each 'listWrapper' contains a single list in your provided structure
+                listWrapper.forEach((list) => {
+                    // Cast each item in the list to a number and store in 'castedList'
+                    const castedList = list.map(item => parseFloat(item));
+                    // Store the casted list in the result array
+                    resultArrays.push(castedList);
+                });
+            });
+        
+            return resultArrays;
+        }
+        
+
+        const array = extractAndCast(jsonData);
+
  
         const labels = {{ labels | tojson}};
 
@@ -24,7 +49,7 @@
                 label: 'Sales',
                 backgroundColor: 'rgb(255, 99, 132)',
                 borderColor: 'rgb(255, 99, 132)',
-                data: {{ data | tojson}},
+                data: array,
             }]
         };
  

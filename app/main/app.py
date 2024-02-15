@@ -29,7 +29,7 @@ def index():
 @app.route('/process/<topic_name>')
 def process_topic(topic_name):
     topics = [topic_name]
-    realtimecurveDict, record = logic.consumeAndProcess.runlogic(topics)
+    realtimecurveDict = logic.consumeAndProcess.runlogic(topics)
     # Here FHIR Stuff
     for key, valueLists in realtimecurveDict.items():
         print(f"Processing {key}")
@@ -37,14 +37,13 @@ def process_topic(topic_name):
         fhir_obs = fhirizer.exporter.fhir(valueLists[1], base)
     
     # Convert the dictionary to a JSON string
-#    json_str = json.dumps(realtimecurveDict)
+    json_str = json.dumps(realtimecurveDict)
 
     return render_template(
        template_name_or_list='chartjs-example.html',
-        data=realtimecurveDict["ECGI.Realtimecurve.68.793F"][1][-1],
-        labels=realtimecurveDict["ECGI.Realtimecurve.68.793F"][0][-1],
-
- #        datasets = json_str
+        # data=realtimecurveDict["ECGI.Realtimecurve.68.793F"][1][-1],
+        # labels=realtimecurveDict["ECGI.Realtimecurve.68.793F"][0][-1],
+        datasets = json_str,
    )
 
 
