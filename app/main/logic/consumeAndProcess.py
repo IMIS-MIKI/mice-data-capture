@@ -91,7 +91,7 @@ def timespan_in_seconds(epoch_times):
         return True  
     for current_time in epoch_times_seconds:
         difference = current_time - first_epoch_time
-        if difference >= 1:
+        if difference >= 5:
             return False
     return True
 

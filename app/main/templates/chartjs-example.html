@@ -14,10 +14,9 @@
     <div id="output"></div>
 
     <script>
-        // Example placeholder for your JSON data
-        var encodedJsonStr = "{{ datasets }}"; // Make sure to decode or replace this with your actual data
+        var encodedJsonStr = "{{ datasets }}";
         var decodedJsonStr = decodeHtmlEntities(encodedJsonStr);
-        var dataObj = JSON.parse(decodedJsonStr); // Assuming this is the correct parsed format
+        var dataObj = JSON.parse(decodedJsonStr);
 
         var keys = [];
         var integerLists = [];
@@ -37,11 +36,6 @@
             return textArea.value;
         }
 
-
-        function plotArray(keys, integerLists, stringLists) {
-            generateCharts(keys, integerLists[0], stringLists[0]);
-
-        }
 
         function displayArrayInfo(arr, title, containerId) {
             var container = document.getElementById(containerId);
@@ -66,13 +60,11 @@
 
         function createChart(keys, labels, data, chartId) {
             const dataConfig = {
-//                labels: JSON.stringify(labels) ,
                 labels: labels ,
                 datasets: [{
                     label: keys,
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
-//                    data: JSON.stringify(data) ,
                     data: data ,
                 }]
             };
