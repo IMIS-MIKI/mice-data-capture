@@ -22,25 +22,28 @@ def index():
         if t.startswith('sdc'):
             topics.append(t)
     # Render these topics in the index.html template
+    print(topics)
     return render_template('liveplot.html', topics=topics)
 
 
 @app.route('/chart-data')
 def chart_data():
-    #response = Response(stream_with_context(livedataplot.generateLiveData.generateRandomData()), mimetype="text/event-stream")
-    response = Response(stream_with_context(generateLiveData.runlive(['sdc_865d26ad-ee40-5368-a215-4950e69b4a60_ws'])), mimetype="text/event-stream")
+    # response = Response(stream_with_context(livedataplot.generateLiveData.generateRandomData()), mimetype="text/event-stream")
+    response = Response(stream_with_context(generateLiveData.runlive(['sdc_865d26ad-ee40-5368-a215-4950e69b4a60_ws'])),
+                        mimetype="text/event-stream")
     response.headers["Cache-Control"] = "no-cache"
     response.headers["X-Accel-Buffering"] = "no"
     return response
     # Other routes and functions...
+
 
 @app.route('/process/<topic_name>')
 def process_topic(topic_name):
     topics = [topic_name]
     realtimecurveDict = consumeAndProcess.runlogic(topics)
     # Here FHIR Stuff
-    fhir_obs = exporter.fhirize(realtimecurveDict)
-    print(fhir_obs.json(indent=2))
+    fhir_bundle = exporter.fhirize(realtimecurveDict)
+    print(fhir_bundle.json(indent=2))
 
     # Convert the dictionary to a JSON string
     json_str = json.dumps(realtimecurveDict)
