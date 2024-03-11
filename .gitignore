@@ -16,3 +16,4 @@ app/main/logic/__pycache__/
 .vscode/launch.json
 .DS_Store
 app/main/__pycache__/
+app/main/.env

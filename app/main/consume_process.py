@@ -1,13 +1,9 @@
 import xml.etree.ElementTree as eT
 import queue
 import sys
-from confluent_kafka import Consumer, KafkaError, KafkaException
-from typing import Iterator
 import time
-
-
-def generate_data_plot(xs, ys) -> Iterator[str]:
-    print('do something')
+import helper
+from confluent_kafka import Consumer, KafkaError, KafkaException
 
 
 def parse_input(incoming):
@@ -34,14 +30,14 @@ def process_messages(stack, realtimecurveDict):
                 ys.extend(data_dict[keys])
                 if keys not in realtimecurveDict:
                     xs.extend(range((xs[-1]) + 1, len(ys), 1))
-                    realtimecurveDict[keys] = [[xs], [ys]] 
+                    realtimecurveDict[keys] = [[xs], [ys]]
                 else:
                     for items in ys:
-                        realtimecurveDict[keys][1][-1].append(items)  
+                        realtimecurveDict[keys][1][-1].append(items)
                     xs = []
                     xs.extend(range(realtimecurveDict[keys][0][-1][-1] + 1, len(realtimecurveDict[keys][1][-1]), 1))
                     for items in xs:
-                        realtimecurveDict[keys][0][-1].append(items)  
+                        realtimecurveDict[keys][0][-1].append(items)
         else:
             break
         return data_dict['DeterminationTime']
@@ -58,10 +54,10 @@ def basic_consume_loop(consumer, stack, running):
     while running:
         try:
             msg = consumer.poll(timeout=60.0)
-            if msg is None or not msg: 
+            if msg is None or not msg:
                 print("Wait for new messages")
-                time.sleep(5)       
-    
+                time.sleep(5)
+
             if msg.error():
                 if msg.error().code() == KafkaError._PARTITION_EOF:
                     # End of partition event
@@ -86,7 +82,7 @@ def timespan_in_seconds(epoch_times):
     epoch_times_seconds = [int(time) / 1000 for time in epoch_times]
     first_epoch_time = epoch_times_seconds[0]
     if not epoch_times_seconds:
-        return True  
+        return True
     for current_time in epoch_times_seconds:
         difference = current_time - first_epoch_time
         if difference >= 5:
@@ -95,10 +91,7 @@ def timespan_in_seconds(epoch_times):
 
 
 def runlogic(topics):
-    conf = {'bootstrap.servers': '172.26.241.166:9092',
-            'group.id': 'mice',
-            'enable.auto.commit': 'false',
-            'auto.offset.reset': 'latest'}
+    conf = helper.get_consumer_conf('capture')
     consumer = Consumer(conf)
     consumer.subscribe(topics)
     realtimecurveDict = {}

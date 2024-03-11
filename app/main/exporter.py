@@ -4,7 +4,7 @@ from fhir.resources.R4B.binary import Binary
 from fhir.resources.R4B.observation import Observation
 from fhir.resources.R4B.codeableconcept import CodeableConcept
 from fhir.resources.R4B.quantity import Quantity
-import create_image
+import helper
 
 metrics = {'ECGI.Realtimecurve.68.793F': 'DeviceMetric/0a017abd-db0e-5865-ab2c-1de1c9d6406e',
            'ECGII.Realtimecurve.69.77E9': 'DeviceMetric/714ecc05-bab8-548e-8c28-54ea8e6c888f',
@@ -47,7 +47,7 @@ def fhirize(incoming_data):
     binary_entry = BundleEntry.construct()
 
     keys = list(incoming_data.keys())
-    image = create_image.createImage(incoming_data[keys[0]][0], incoming_data[keys[0]][1], keys[0])
+    image = helper.create_image(incoming_data[keys[0]][0], incoming_data[keys[0]][1], keys[0])
     binary = create_binary(image)
 
     binary_entry.resource = binary
